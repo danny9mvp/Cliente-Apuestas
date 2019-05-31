@@ -23,8 +23,18 @@ public class InterfazCliente extends javax.swing.JFrame {
      * Creates new form Interfaz
      */
     private Socket socket=null;
+    private DataInputStream dis=null;
+    private DataOutputStream dos=null;
+    private String mano="";
+    private int totalFichas = 1000;
+    private int pozoAcumulado = 0;
     public InterfazCliente() {
-        initComponents();
+        initComponents();        
+        this.btnPedir.setEnabled(false);
+        this.btnQuedarse.setEnabled(false);
+        this.btnIniciar.setEnabled(false);
+        this.spinnerApuesta.setEnabled(false);
+        this.btnDesconectar.setEnabled(false);
     }
 
     /**
@@ -37,20 +47,25 @@ public class InterfazCliente extends javax.swing.JFrame {
     private void initComponents() {
 
         jPanel1 = new javax.swing.JPanel();
-        txtEnviar = new javax.swing.JTextField();
-        btnEnviar = new javax.swing.JButton();
+        btnIniciar = new javax.swing.JButton();
         btnConectar = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         areaMensaje = new javax.swing.JTextArea();
+        spinnerApuesta = new javax.swing.JSpinner();
+        jLabel1 = new javax.swing.JLabel();
+        jPanel2 = new javax.swing.JPanel();
+        btnPedir = new javax.swing.JButton();
+        btnQuedarse = new javax.swing.JButton();
+        btnDesconectar = new javax.swing.JButton();
+        lblFichas = new javax.swing.JLabel();
+        lblPozo = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        txtEnviar.setText("100");
-
-        btnEnviar.setText("Iniciar juego");
-        btnEnviar.addActionListener(new java.awt.event.ActionListener() {
+        btnIniciar.setText("Iniciar juego");
+        btnIniciar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEnviarActionPerformed(evt);
+                btnIniciarActionPerformed(evt);
             }
         });
 
@@ -65,6 +80,52 @@ public class InterfazCliente extends javax.swing.JFrame {
         areaMensaje.setRows(5);
         jScrollPane1.setViewportView(areaMensaje);
 
+        spinnerApuesta.setValue(100);
+
+        jLabel1.setText("Valor de la apuesta:");
+
+        btnPedir.setText("Pedir otra carta");
+        btnPedir.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPedirActionPerformed(evt);
+            }
+        });
+
+        btnQuedarse.setText("Quedarse");
+        btnQuedarse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnQuedarseActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
+        jPanel2.setLayout(jPanel2Layout);
+        jPanel2Layout.setHorizontalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnQuedarse, javax.swing.GroupLayout.PREFERRED_SIZE, 107, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnPedir))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+        jPanel2Layout.setVerticalGroup(
+            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel2Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnPedir)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(btnQuedarse))
+        );
+
+        btnDesconectar.setText("Desconectar");
+
+        lblFichas.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblFichas.setText(" ");
+
+        lblPozo.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
+        lblPozo.setText(" ");
+
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
@@ -72,28 +133,52 @@ public class InterfazCliente extends javax.swing.JFrame {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 380, Short.MAX_VALUE)
                     .addGroup(jPanel1Layout.createSequentialGroup()
                         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnConectar)
+                            .addComponent(jScrollPane1)
                             .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addComponent(txtEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, 171, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(btnEnviar)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
+                                .addComponent(jLabel1)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(spinnerApuesta, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(btnIniciar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 119, Short.MAX_VALUE)
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addContainerGap())
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(lblPozo))
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addComponent(btnConectar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(btnDesconectar)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(lblFichas)))
+                        .addGap(167, 167, 167))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+            .addGroup(jPanel1Layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(btnConectar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 110, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(txtEnviar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(btnEnviar))
+                    .addComponent(btnConectar)
+                    .addComponent(btnDesconectar)
+                    .addComponent(lblFichas))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblPozo, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 27, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 116, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel1)
+                            .addComponent(spinnerApuesta, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(12, 12, 12))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnIniciar, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 52, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap())
         );
 
@@ -101,7 +186,9 @@ public class InterfazCliente extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -111,47 +198,63 @@ public class InterfazCliente extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    public void enviarAccion(String accion){
-        DataOutputStream dos=null;
+    public void enviarAccion(String accion){        
         try {            
             dos = new DataOutputStream(socket.getOutputStream());
             dos.flush();
             dos.writeUTF(accion);             
-            System.out.println("Mensaje Enviado");
+            System.out.println("En juego...");
         } catch (IOException ex) {
             ex.printStackTrace();
         }
     }
     
-    private void btnEnviarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEnviarActionPerformed
-        enviarAccion("iniciar,"+this.txtEnviar.getText());
-        /*
-        finally{
-            try {
-                if(dos != null)
-                    dos.close();
-                if(socket != null)            
-                    socket.close();
-            } catch (IOException ex) {
-                Logger.getLogger(InterfazCliente.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        */
-    }//GEN-LAST:event_btnEnviarActionPerformed
+    private void btnIniciarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnIniciarActionPerformed
+        this.pozoAcumulado+=Integer.parseInt(this.spinnerApuesta.getValue().toString());        
+        this.lblFichas.setText("Total de fichas: "+(this.totalFichas-this.pozoAcumulado));
+        this.lblPozo.setText("Pozo: "+this.pozoAcumulado*2);
+        if(!this.btnPedir.isEnabled()&& !this.btnQuedarse.isEnabled()){
+            this.btnPedir.setEnabled(true);
+            this.btnQuedarse.setEnabled(true);                     
+        }       
+        this.btnIniciar.setEnabled(false);
+        enviarAccion("iniciar,"+this.spinnerApuesta.getValue());
+        this.btnConectar.setEnabled(false);       
+    }//GEN-LAST:event_btnIniciarActionPerformed
 
     private void btnConectarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnConectarActionPerformed
+        
+        this.btnIniciar.setEnabled(true);
+        this.spinnerApuesta.setEnabled(true);  
+        this.btnDesconectar.setEnabled(true);        
         try {
             socket = new Socket("127.0.0.1", 9000);
             JOptionPane.showMessageDialog(null, "Conectado.","Información",JOptionPane.INFORMATION_MESSAGE);
             Thread hiloEscucha = new Thread(new Runnable(){                
-                public void run(){
-                    DataInputStream dis=null;
+                public void run(){                    
                     String entrada="";
                     try {
                         dis = new DataInputStream(socket.getInputStream());
                         while(true){
                             entrada = dis.readUTF();
-                            areaMensaje.append(entrada+"\n");
+                            switch(entrada.split(",")[0]){
+                                case "mano":
+                                    mano=entrada.split(",")[1];
+                                    areaMensaje.append("Tu mano es: "+mano+"\n");                                                                        
+                                    break;
+                                case "carta":
+                                    mano+="|"+entrada.split(",")[1];
+                                    areaMensaje.append("Has pedido una carta: "+mano+"\n");                                    
+                                    break;
+                                case "ganaste":
+                                    areaMensaje.append("Has ganado "+pozoAcumulado+" fichas.\n");
+                                    totalFichas+=(pozoAcumulado*2);                                    
+                                    break;
+                                case "perdiste":
+                                    areaMensaje.append("Has perdido "+pozoAcumulado+"fichas.\n");
+                                    totalFichas-=pozoAcumulado;                                    
+                                    break;
+                            }                            
                         }
                     } catch (IOException ex) {
                         Logger.getLogger(InterfazCliente.class.getName()).log(Level.SEVERE, null, ex);
@@ -161,9 +264,18 @@ public class InterfazCliente extends javax.swing.JFrame {
             hiloEscucha.start();
             this.btnConectar.setEnabled(false);
         } catch (IOException ex) {
+            JOptionPane.showMessageDialog(null, "Imposible conectar con el servidor.", "Error", JOptionPane.ERROR_MESSAGE);
             Logger.getLogger(InterfazCliente.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_btnConectarActionPerformed
+
+    private void btnPedirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPedirActionPerformed
+        enviarAccion("pedir,"+mano);        
+    }//GEN-LAST:event_btnPedirActionPerformed
+
+    private void btnQuedarseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnQuedarseActionPerformed
+        enviarAccion("quedarse,"+mano);
+    }//GEN-LAST:event_btnQuedarseActionPerformed
 
     /**
      * @param args the command line arguments
@@ -204,9 +316,16 @@ public class InterfazCliente extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JTextArea areaMensaje;
     private javax.swing.JButton btnConectar;
-    private javax.swing.JButton btnEnviar;
+    private javax.swing.JButton btnDesconectar;
+    private javax.swing.JButton btnIniciar;
+    private javax.swing.JButton btnPedir;
+    private javax.swing.JButton btnQuedarse;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel2;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField txtEnviar;
+    private javax.swing.JLabel lblFichas;
+    private javax.swing.JLabel lblPozo;
+    private javax.swing.JSpinner spinnerApuesta;
     // End of variables declaration//GEN-END:variables
 }
